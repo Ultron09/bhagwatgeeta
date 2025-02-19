@@ -21,3 +21,5 @@ EXPOSE 5000
 
 # Start the application using Gunicorn
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "Main:app"]
+ENV OPENCV_VIDEOIO_PRIORITY_MSMF 0
+ENV OPENCV_VIDEOIO_PRIORITY_DSHOW 0
