@@ -4,3 +4,4 @@ opencv-python
 cmake
 numpy
 gunicorn
+google-genrativeai
