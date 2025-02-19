@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bhagavad Gita + Face Analysis</title>
+  <style>
+    /* Basic layout */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: #1e1e1e;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      display: flex; 
+      height: 100%; 
+      width: 100%;
+    }
+    /* Left sidebar: Verse search & video feed */
+    .sidebar {
+      flex: 1;
+      background: #292929;
+      padding: 15px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+    }
+    .search-section {
+      margin-bottom: 20px;
+    }
+    .search-section h2 {
+      text-align: center;
+      color: #FFD700;
+    }
+    .input-section {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    .input-section input {
+      flex: 1;
+      padding: 8px;
+      background: #333;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+    }
+    .input-section button {
+      padding: 8px;
+      margin-left: 5px;
+      background: #4CAF50;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #verse-result p {
+      margin: 6px 0;
+    }
+    .audio-btn {
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 10px;
+      display: none; /* hidden by default */
+    }
+    .video-section {
+      flex: 1;
+      margin-top: 10px;
+      background: #1e1e1e;
+      border-radius: 5px;
+    }
+    .video-section h2 {
+      text-align: center;
+      color: #FFD700;
+      margin-bottom: 8px;
+    }
+    .video-section img {
+      width: 100%;
+      border-radius: 5px;
+      display: block;
+    }
+    /* Middle chat area */
+    .chat-container {
+      flex: 2;
+      background: #2c2c2c;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+    }
+    .chat-box {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #444;
+      border-radius: 5px;
+    }
+    .input-box {
+      display: flex;
+      background: #222;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .input-box input {
+      flex: 1;
+      padding: 10px;
+      background: #333;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+    }
+    .input-box button {
+      padding: 10px;
+      margin-left: 5px;
+      background: #4CAF50;
+      border: none;
+      color: #fff;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .message {
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 5px;
+      word-wrap: break-word;
+    }
+    .user {
+      background: #0084ff;
+      text-align: right;
+    }
+    .bot {
+      background: #555;
+    }
+    .typing {
+      font-style: italic;
+      opacity: 0.7;
+    }
+    /* Right sidebar: Integrated Psychological Report */
+    .report-sidebar {
+      flex: 1;
+      background: #292929;
+      padding: 15px;
+      overflow-y: auto;
+    }
+    .report-sidebar h2 {
+      text-align: center;
+      color: #FFD700;
+    }
+    .report-section {
+      background: #333;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+    }
+    .download-btn {
+      background: #FF5722;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      display: block;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left sidebar: Verse search & video feed -->
+    <div class="sidebar">
+      <div class="search-section">
+        <h2>Bhagavad Gita Verse Search</h2>
+        <div class="input-section">
+          <input type="text" id="verse-input" placeholder="Enter verse (e.g., 2.16)" onkeypress="handleVerseKeyPress(event)">
+          <button onclick="searchVerse()">Search</button>
+        </div>
+        <div id="verse-result">
+          <p><strong>Sanskrit:</strong> <span id="sanskrit"></span></p>
+          <p><strong>Explanation:</strong> <span id="explanation"></span></p>
+        </div>
+        <!-- Hidden audio elements for verse search -->
+        <audio id="verse-audio" style="display: none;"></audio>
+        <audio id="explanation-audio" style="display: none;"></audio>
+        <!-- Buttons for verse and explanation audio -->
+        <button id="verse-audio-btn" class="audio-btn" onclick="toggleVerseAudio()">🔊 Play Verse</button>
+        <button id="explanation-audio-btn" class="audio-btn" onclick="toggleExplanationAudio()">🔊 Play Explanation</button>
+      </div>
+      <div class="video-section">
+        <h2>Live Face Analysis</h2>
+        <img id="video-feed" src="/video_feed" alt="Live Video Feed">
+      </div>
+    </div>
+
+    <!-- Middle chat container -->
+    <div class="chat-container">
+      <div class="chat-box" id="chat-box"></div>
+      <div class="input-box">
+        <input type="text" id="user-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+        <button onclick="sendMessage()">Send</button>
+      </div>
+      <!-- Hidden audio element for chat responses -->
+      <audio id="audio-player" style="display: none;"></audio>
+    </div>
+
+    <!-- Right sidebar: Integrated Psychological Report -->
+    <div class="report-sidebar">
+      <h2>🧠 Psychological Report</h2>
+      <button class="download-btn" onclick="window.location.href='/download_report'">Download Report PDF</button>
+      <div class="report-section">
+        <strong>Integrated Report:</strong>
+        <p id="integrated-report">Awaiting analysis...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Chat Functions ---------- */
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+
+    async function sendMessage() {
+      const inputField = document.getElementById("user-input");
+      const message = inputField.value.trim();
+      if (!message) return;
+
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML += `<div class="message user">${message}</div>`;
+      inputField.value = "";
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Show typing indicator
+      chatBox.innerHTML += `<div class="message bot typing">AI is typing...</div>`;
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: message })
+        });
+        console.log("Response status:", response.status);
+        const data = await response.json();
+        console.log("Chat response data:", data);
+        const typingElem = document.querySelector(".typing");
+        if (typingElem) typingElem.remove();
+
+        // Display AI's text response
+        chatBox.innerHTML += `<div class="message bot">${formatResponse(data.reply)}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        // If audio_url is present, create a "Play Audio" button
+        if (data.audio_url && data.audio_url.trim() !== "") {
+          const audioPlayer = document.getElementById("audio-player");
+          audioPlayer.src = data.audio_url + "?t=" + new Date().getTime();
+          audioPlayer.playbackRate = 1.35;
+
+          // Create a new button for playing the chat response audio
+          const playButton = document.createElement("button");
+          playButton.classList.add("audio-btn");
+          playButton.innerText = "🔊 Play Audio";
+          playButton.onclick = () => audioPlayer.play();
+
+          chatBox.appendChild(playButton);
+          chatBox.scrollTop = chatBox.scrollHeight;
+        } else {
+          console.log("No audio_url found in the chat response.");
+        }
+        fetchPsychologicalReport();
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
+    }
+
+    function formatResponse(response) {
+      return response
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, '<span class="highlight">$1</span>')
+        .replace(/\n/g, "<br>");
+    }
+
+    async function fetchPsychologicalReport() {
+      try {
+        const response = await fetch("/psychological_report");
+        const data = await response.json();
+        document.getElementById("integrated-report").innerHTML =
+          formatResponse(data.integrated_report || "No analysis yet.");
+      } catch (error) {
+        console.error("Error fetching psychological report:", error);
+      }
+    }
+
+    // Refresh the integrated report every 3 minutes (180000 ms)
+    setInterval(fetchPsychologicalReport, 180000);
+
+    /* ---------- Verse Search Functions ---------- */
+    function handleVerseKeyPress(event) {
+      if (event.key === "Enter") {
+        searchVerse();
+      }
+    }
+
+    async function searchVerse() {
+      const verseInputField = document.getElementById("verse-input");
+      const verseCode = verseInputField.value.trim();
+      console.log("Searching for verse:", verseCode);
+      if (!verseCode) return;
+
+      try {
+        const response = await fetch("/verse_search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ verse: verseCode })
+        });
+        console.log("Verse search response status:", response.status);
+        const data = await response.json();
+        console.log("Verse search response data:", data);
+
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+
+        // Display Sanskrit & Explanation
+        document.getElementById("sanskrit").innerText = data.sanskrit;
+        document.getElementById("explanation").innerText = data.explanation;
+
+        // Set up Verse Audio
+        const verseAudio = document.getElementById("verse-audio");
+        verseAudio.src = data.audio_url + "?t=" + new Date().getTime();
+        const verseAudioBtn = document.getElementById("verse-audio-btn");
+        verseAudioBtn.style.display = "inline-block";
+        verseAudioBtn.innerText = "🔊 Play Verse";
+
+        // Set up Explanation Audio
+        const explanationAudio = document.getElementById("explanation-audio");
+        explanationAudio.src = data.explanation_audio_url + "?t=" + new Date().getTime();
+        const explanationAudioBtn = document.getElementById("explanation-audio-btn");
+        explanationAudioBtn.style.display = "inline-block";
+        explanationAudioBtn.innerText = "🔊 Play Explanation";
+
+      } catch (error) {
+        console.error("Error searching verse:", error);
+      }
+    }
+
+    // Toggle the verse audio
+    function toggleVerseAudio() {
+      const verseAudio = document.getElementById("verse-audio");
+      const verseAudioBtn = document.getElementById("verse-audio-btn");
+      if (verseAudio.paused || verseAudio.ended) {
+        verseAudio.play();
+        verseAudioBtn.innerText = "⏸️ Pause Verse";
+      } else {
+        verseAudio.pause();
+        verseAudioBtn.innerText = "🔊 Play Verse";
+      }
+      verseAudio.onended = () => {
+        verseAudioBtn.innerText = "🔊 Play Verse";
+      };
+    }
+
+    // Toggle the explanation audio
+    function toggleExplanationAudio() {
+      const explanationAudio = document.getElementById("explanation-audio");
+      const explanationAudioBtn = document.getElementById("explanation-audio-btn");
+      if (explanationAudio.paused || explanationAudio.ended) {
+        explanationAudio.play();
+        explanationAudioBtn.innerText = "⏸️ Pause Explanation";
+      } else {
+        explanationAudio.pause();
+        explanationAudioBtn.innerText = "🔊 Play Explanation";
+      }
+      explanationAudio.onended = () => {
+        explanationAudioBtn.innerText = "🔊 Play Explanation";
+      };
+    }
+  </script>
+</body>
+</html>
