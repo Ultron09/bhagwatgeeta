@@ -1,7 +1,8 @@
-mediapipe
-dlib
+tensorflow
 opencv-python
 cmake
+mediapipe
+dlib
 numpy
 gunicorn
 Flask
