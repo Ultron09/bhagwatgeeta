@@ -12,13 +12,12 @@ from datetime import datetime
 import threading
 from deepface import DeepFace
 import pdfkit
-import uuid  # for unique filenames
-from env1 import GeminiKey
+import uuid
 
 # -----------------------------------------------------
 # 1) Configure Gemini
 # -----------------------------------------------------
-genai.configure(api_key=GeminiKey)
+genai.configure(api_key=os.getenv("GwminiKey")  )
 
 instruction = (
     "Respond like a psychologist who integrates wisdom from the Bhagavad Gita into practical solutions. "
