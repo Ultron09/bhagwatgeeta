@@ -4,4 +4,9 @@ opencv-python
 cmake
 numpy
 gunicorn
-google-genrativeai
+Flask
+google-generativeai
+gtts
+deepface
+pdfkit
+uuid
