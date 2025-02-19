@@ -1,22 +1,23 @@
-# Use a lightweight Python image
-FROM python:3.9-slim  
+# Use an official Python runtime as a parent image
+FROM python:3.9
 
-# Set the working directory  
-WORKDIR /app  
+# Set the working directory
+WORKDIR /app
 
-# Install required system dependencies for OpenCV  
-RUN apt-get update && apt-get install -y libgl1 libglib2.0-0 && rm -rf /var/lib/apt/lists/*  
+# Install system dependencies required for OpenCV and other libraries
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the project files  
-COPY . /app  
+# Copy the application code
+COPY . /app
 
-# Install Python dependencies  
-RUN pip install --no-cache-dir --upgrade pip  
-RUN pip install --no-cache-dir -r requirements.txt  
-RUN pip install --no-cache-dir opencv-python-headless  
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port for Koyeb  
-EXPOSE 8080  
+# Expose the port for the application
+EXPOSE 5000
 
-# Run the application using Gunicorn  
-CMD ["gunicorn", "-b", "0.0.0.0:5000", "Main:app"]  
+# Start the application using Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "Main:app"]
